@@ -4,7 +4,6 @@ const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 const Redis = require("ioredis");
-const { channel } = require("diagnostics_channel");
 
 const app = express();
 app.use(
@@ -14,17 +13,17 @@ app.use(
 );
 
 const pub = new Redis({
-  host: "redis-798fca5-next-social.a.aivencloud.com",
-  port: "23148",
-  username: "default",
-  password: "AVNS_m7KqABNbzcDk47X-BQZ",
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
 });
 
 const sub = new Redis({
-  host: "redis-798fca5-next-social.a.aivencloud.com",
-  port: "23148",
-  username: "default",
-  password: "AVNS_m7KqABNbzcDk47X-BQZ",
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
 });
 
 const server = http.createServer(app);
