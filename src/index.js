@@ -4,11 +4,15 @@ const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 const Redis = require("ioredis");
+const dotnev = require("dotenv");
 
 const app = express();
+
+dotnev.config();
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
   })
 );
 
@@ -30,27 +34,32 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"],
   },
 });
 
+sub.subscribe("MESSAGES");
+
 io.on("connection", (socket) => {
-  sub.subscribe("MESSAGES");
+  socket.on("ping", () => {
+    socket.emit("pong");
+  });
+
   socket.on("joinRoom", (data) => {
     // socket.join(roomId);
     console.log(data);
   });
 
   socket.on("sendMessage", async (data) => {
-    console.log("Message received", data);
     await pub.publish("MESSAGES", JSON.stringify(data.data));
     // io.emit("receiveMessage", data.data);
   });
 
   sub.on("message", (channel, message) => {
+    console.log("Received message from Redis:", JSON.parse(message));
     if (channel === "MESSAGES") {
-      io.emit("receiveMessage", JSON.parse(message));
+      socket.emit("receiveMessage", JSON.parse(message));
     }
   });
 
